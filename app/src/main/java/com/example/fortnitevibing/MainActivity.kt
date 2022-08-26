@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.widget.Button
 import android.widget.VideoView
 import androidx.appcompat.app.AppCompatActivity
+import kotlinx.coroutines.*
 
 class MainActivity : AppCompatActivity() {
 
@@ -21,7 +22,11 @@ class MainActivity : AppCompatActivity() {
 
         val uri = Uri.parse(videoPath)
         videoView.setVideoURI(uri)
+
         videoView.requestFocus()
+        GlobalScope.launch(Dispatchers.IO) {
+            async{ loadConfiguration(videoView) }
+        }
 
         vibingButton.setOnClickListener() {
             if (isVibing) {
@@ -38,9 +43,16 @@ class MainActivity : AppCompatActivity() {
         }
 
         videoView!!.setOnCompletionListener {
-            videoView.start()
+            if (isVibing)
+                videoView.start()
         }
 
+    }
+
+    private suspend fun loadConfiguration(videoView: VideoView){
+        videoView.start()
+        delay(600L)
+        videoView.pause()
     }
 
 
